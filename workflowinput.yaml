@@ -242,6 +242,12 @@ parameterlist:
         - value: "No"
           display: "No"
 
+    - displayname: Top-K Per Library
+      paramtype: text
+      nf_paramname: library_topk_per_library
+      formplaceholder: "0 = disabled (use Top-K overall); if >0, keep this many top hits per library per scan (overrides Top-K)"
+      formvalue: "0"
+
 
     - displayname: Normalization Parameters
       paramtype: section

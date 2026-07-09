@@ -44,6 +44,7 @@ params.topology_maxcomponent = 100
 
 // Library Search Parameters
 params.library_topk = 1
+params.library_topk_per_library = 0
 
 params.library_min_cosine = 0.7
 params.library_min_matched_peaks = 6
@@ -274,7 +275,7 @@ process librarySearchData {
     $TOOL_FOLDER/binaries/main_execmodule.allcandidates \
     --pm_tolerance $params.pm_tolerance \
     --fragment_tolerance $params.fragment_tolerance \
-    --topk $params.library_topk \
+    --topk ${Math.max(params.library_topk as Integer, params.library_topk_per_library as Integer)} \
     --library_min_cosine $params.library_min_cosine \
     --library_min_matched_peaks $params.library_min_matched_peaks \
     --analog_search $params.library_analog_search \
@@ -298,7 +299,9 @@ process librarymergeResults {
     results merged_results.tsv \
     --topk $params.library_topk \
     --key_column "#Scan#" \
-    --sort_column MQScore
+    --sort_column MQScore \
+    --per_library_topk $params.library_topk_per_library \
+    --library_column LibraryName
     """
 }
 
