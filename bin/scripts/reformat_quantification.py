@@ -18,6 +18,7 @@ import mztabm_formatter
 import agilent_formatter
 import agilent2_formatter
 import masscube_formatter
+import asari_formatter
 from agilent_explorer2_formatter import agilent_explorer2_formatter
 
 
@@ -36,11 +37,9 @@ def main():
     input_filenames = glob.glob(os.path.join(args.input_spectra_folder, "*"))
 
     # might be MZMINE MZMINE2 or MZMINE3 in the future
-    # ASARI exports a quant table and MGF already in the MZmine-style format,
-    # so it reuses the MZMINE code path.
     # EVERYTHING_BAGEL is the GNPS2 everything_bagel_workflow feature finding output,
     # which emits an MZmine2-style quant table + MGF, so it also reuses the MZMINE code path.
-    if "MZMINE" in args.toolname or args.toolname in ("ASARI", "EVERYTHING_BAGEL"):
+    if "MZMINE" in args.toolname or args.toolname in ("EVERYTHING_BAGEL",):
         print(args.toolname)
 
         if len(input_filenames) != 1:
@@ -177,6 +176,20 @@ def main():
         input_msp = input_filenames[0]
         masscube_formatter.convert_to_feature_csv(args.quantification_table, args.quantification_table_reformatted)
         masscube_formatter.convert_mgf(input_msp, args.output_mgf)
+
+    elif args.toolname == "ASARI":
+        print("ASARI")
+
+        if len(input_filenames) != 1:
+            print("Must input exactly 1 spectrum msp file")
+            exit(1)
+
+        # Raw asari output: a feature-table TSV + an MS/MS MSP with no shared
+        # feature id. asari_formatter assigns the row IDs and matches each
+        # spectrum to a feature by precursor m/z + retention time.
+        input_msp = input_filenames[0]
+        feature_df = asari_formatter.convert_to_feature_csv(args.quantification_table, args.quantification_table_reformatted)
+        asari_formatter.convert_mgf(input_msp, args.output_mgf, feature_df)
 
     # Finally, we can renormlize the output
     try:
